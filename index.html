@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JEV en 30X Tech: guardrails y riesgo de abandono</title>
+<style>
+  :root{
+    --bg:#f2f4f7; --panel:#fff; --ink:#1b2430; --muted:#5b6675; --line:#d5dae1; --accent:#2b4c9b;
+    --exec:#1f7a4d; --exec-bg:#e3f3ea; --block:#b3261e; --block-bg:#fbe7e5; --esc:#8a5a00; --esc-bg:#fbefd2;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#141a22; --panel:#1c242f; --ink:#e6ebf2; --muted:#9aa6b6; --line:#323d4b; --accent:#8fb0ff;
+      --exec:#6fd3a0; --exec-bg:#16352a; --block:#ff8f87; --block-bg:#3a1c1a; --esc:#f0c26b; --esc-bg:#3a2e12;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+  header{padding:28px 20px 8px;max-width:980px;margin:0 auto}
+  h1{font:600 26px/1.2 Georgia,"Times New Roman",serif;margin:0 0 6px}
+  header p{margin:0;color:var(--muted);max-width:70ch}
+  main{max-width:980px;margin:0 auto;padding:12px 20px 60px}
+  nav{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
+  nav button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit}
+  nav button[aria-selected=true]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
+  button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:10px}
+  .pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600}
+  .execute{background:var(--exec-bg);color:var(--exec)} .block{background:var(--block-bg);color:var(--block)} .escalate{background:var(--esc-bg);color:var(--esc)}
+  .none{background:var(--bg);color:var(--muted)} .email{background:var(--esc-bg);color:var(--esc)} .flag{background:var(--block-bg);color:var(--block)}
+  .row{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
+  .row-top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .row-top b{font-weight:600}
+  .meter{position:relative;height:8px;background:var(--bg);border-radius:4px;margin:10px 0 4px;border:1px solid var(--line)}
+  .meter i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
+  .meter u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--muted)}
+  .small{font-size:13px;color:var(--muted)}
+  details{margin-top:6px} summary{cursor:pointer;color:var(--accent);font-size:13px}
+  pre,textarea{font:12.5px/1.45 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;color:var(--ink);width:100%}
+  textarea{min-height:190px;resize:vertical}
+  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} th{font-weight:600;background:var(--bg)}
+  .wrap{overflow-x:auto}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0 16px}
+  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+  .kpi strong{display:block;font-size:24px;font-weight:600} .kpi span{font-size:13px;color:var(--muted)}
+  .btn{background:var(--accent);color:#fff;border:0;padding:8px 16px;border-radius:8px;font:inherit;cursor:pointer}
+  @media (prefers-color-scheme:dark){.btn{color:#10151c}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
+  label{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
+  input,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px} @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .feat{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:4px}
+  .dist{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:6px;border:1px solid var(--line)}
+  .dist i{display:block}
+</style>
+</head>
+<body>
+<header>
+  <h1>JEV en 30X Tech</h1>
+  <p>Dos decisiones rápidas y repetitivas: frenar acciones inseguras de agentes internos y detectar alumnos con riesgo de abandonar un programa. Todos los datos son simulados.</p>
+</header>
+<main>
+  <nav role="tablist" aria-label="Secciones">
+    <button role="tab" aria-selected="true" data-tab="guard">Guardrails de agentes</button>
+    <button role="tab" aria-selected="false" data-tab="risk">Riesgo de abandono</button>
+    <button role="tab" aria-selected="false" data-tab="eval">Evaluación</button>
+    <button role="tab" aria-selected="false" data-tab="cfg">Conexión a JEV</button>
+  </nav>
+
+  <section id="guard">
+    <div class="bar">Umbrales sobre p(seguro): ejecutar si es ≥ 0,95 · bloquear si es ≤ 0,20 · escalar a un admin entre ambos.</div>
+    <div id="guardList"></div>
+    <div class="panel">
+      <b>Probar una acción propia</b>
+      <p class="small">Edita el JSON y evalúalo. Usa solo datos inventados.</p>
+      <textarea id="custom" spellcheck="false"></textarea>
+      <p><button class="btn" id="runCustom">Evaluar acción</button></p>
+      <div id="customOut"></div>
+    </div>
+  </section>
+
+  <section id="risk" hidden>
+    <div class="bar">Se actúa sobre P(Alto), no sobre la etiqueta ganadora: ≥ 0,85 etiquetar y avisar · 0,60 a 0,85 campaña de reenganche.</div>
+    <div id="riskList"></div>
+  </section>
+
+  <section id="eval" hidden>
+    <p class="small">Corre las 12 acciones simuladas con etiqueta conocida (seguras, peligrosas y ambiguas) y mide el sistema completo: JEV más reglas de código.</p>
+    <p><button class="btn" id="runEval">Correr evaluación</button></p>
+    <div id="evalOut"></div>
+  </section>
+
+  <section id="cfg" hidden>
+    <div class="panel">
+      <p>El prototipo corre con un JEV simulado (heurísticas deterministas) para que funcione sin API key. El adaptador real ya sigue el contrato de <code>POST /v1/systemone</code> de TypeSafe: pega tu API key y cambia a "JEV real". Si la llamada falla, la app vuelve al modo simulado y lo indica en cada resultado.</p>
+      <div class="grid2">
+        <div><label for="mode">Modo</label><select id="mode"><option value="mock">Simulado</option><option value="real">JEV real</option></select></div>
+        <div><label for="model">Modelo</label><input id="model" value="jev-latest"></div>
+      </div>
+      <label for="endpoint">Endpoint</label><input id="endpoint" value="https://api.typesafe.ai/v1/systemone">
+      <label for="key">API key</label><input id="key" type="password" autocomplete="off">
+      <p class="small">La clave se queda en memoria de esta pestaña. Si el navegador bloquea la llamada por CORS, corre la evaluación por consola con Node (ver README) o apunta el endpoint a un proxy propio. No publiques una clave real en una página desplegada.</p>
+      <button class="btn" id="saveCfg">Aplicar y recalcular</button>
+    </div>
+  </section>
+</main>
+
+<script src="logic.js"></script>
+<script>
+const L = window.JEVLogic;
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const LABEL = { execute:'Ejecutar', block:'Bloquear', escalate:'Escalar a admin', flag:'Etiquetar y avisar', email:'Reenganche por email', none:'Sin acción' };
+
+// ---- pestañas ----
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
+  ['guard','risk','eval','cfg'].forEach(id => $('#'+id).hidden = id !== b.dataset.tab);
+});
+
+// ---- guardrails ----
+function answersHtml(a) {
+  return `<table><tr><th>Pregunta</th><th>Tipo</th><th>Respuesta de JEV</th></tr>` + L.Q_GUARD.map(q => {
+    const r = a[q.id];
+    const v = q.type === 'choice' ? `${esc(r.label)} (${(r.p*100).toFixed(0)}%)` : `p(sí) = ${r.p.toFixed(2)}`;
+    return `<tr><td>${esc(q.text)}</td><td>${q.type}</td><td>${v}</td></tr>`;
+  }).join('') + `</table>`;
+}
+function guardCard(c, ans, d) {
+  const w = Math.round(d.pSafe * 100);
+  return `<div class="row">
+    <div class="row-top"><span><b>${esc(c.id)}</b> · ${esc(c.purpose)}</span><span class="pill ${d.decision}">${LABEL[d.decision]}</span></div>
+    <div class="small">${esc(c.action_type)} · rol ${esc(c.role)} · ${c.records} registros · ${ans.latency_ms} ms · ${esc(ans.source)}</div>
+    <div class="meter" title="p(seguro) ${d.pSafe.toFixed(2)}"><i style="width:${w}%"></i><u style="left:${L.THRESH.block*100}%"></u><u style="left:${L.THRESH.execute*100}%"></u></div>
+    <div class="small">p(seguro) = ${d.pSafe.toFixed(2)} · ${esc(d.reasons.join(' · '))}</div>
+    <details><summary>Ver preguntas y payload</summary>
+      <div class="wrap">${answersHtml(ans.answers)}</div>
+      <pre>${esc(JSON.stringify(c, null, 2))}</pre>
+    </details></div>`;
+}
+async function renderGuard() {
+  const cards = await Promise.all(L.GUARD_CASES.map(async c => { const ans = await L.jev('guard', c); return guardCard(c, ans, L.decideGuard(c, ans)); }));
+  $('#guardList').innerHTML = cards.join('');
+}
+$('#custom').value = JSON.stringify({ id:'X01', action_type:'correo_masivo', role:'marketing', purpose:'Invitar al taller de agentes de IA', body:'Te invitamos al taller de agentes de IA del jueves. Reserva tu cupo.', audience:'inscritos Luma', records:350, fields_exposed:[] }, null, 2);
+$('#runCustom').onclick = async () => {
+  try {
+    const c = JSON.parse($('#custom').value); c.id = c.id || 'X01'; c.records = c.records || 0;
+    const ans = await L.jev('guard', c);
+    $('#customOut').innerHTML = guardCard(c, ans, L.decideGuard(c, ans));
+  } catch (e) { $('#customOut').innerHTML = `<p class="small">El JSON no es válido: ${esc(e.message)}. Revisa comas y comillas.</p>`; }
+};
+
+// ---- riesgo de abandono ----
+async function renderRisk() {
+  const rows = await Promise.all(L.makeStudents(24, 7).map(async s => { const ans = await L.jev('risk', s); return { s, ans, d: L.decideRisk(ans) }; }));
+  rows.sort((a, b) => b.d.pAlto - a.d.pAlto);
+  $('#riskList').innerHTML = rows.map(({ s, ans, d }) => {
+    const p = ans.answers.risk.probs, f = s.features;
+    return `<div class="row"><div class="row-top"><span><b>${esc(s.name)}</b> · P(Alto) = ${d.pAlto.toFixed(2)}</span><span class="pill ${d.action}">${LABEL[d.action]}</span></div>
+      <div class="dist" title="Bajo ${p.Bajo.toFixed(2)} · Medio ${p.Medio.toFixed(2)} · Alto ${p.Alto.toFixed(2)}">
+        <i style="width:${p.Bajo*100}%;background:var(--exec)"></i><i style="width:${p.Medio*100}%;background:var(--esc)"></i><i style="width:${p.Alto*100}%;background:var(--block)"></i></div>
+      <div class="feat"><span>Asistencia ${f.asistencia_pct}%</span><span>Entregas ${f.entregas_pct}%</span><span>${f.dias_desde_login} días sin entrar</span><span>${f.faltas_seguidas} faltas seguidas</span><span>${ans.latency_ms} ms · ${esc(ans.source)}</span></div></div>`;
+  }).join('');
+}
+
+// ---- evaluación ----
+async function runEval() {
+  $('#evalOut').innerHTML = '<p class="small">Evaluando…</p>';
+  const { rows, metrics: m } = await L.evaluate(), pc = x => (x*100).toFixed(0) + '%';
+  const kp = (v, t) => `<div class="kpi"><strong>${v}</strong><span>${t}</span></div>`;
+  $('#evalOut').innerHTML = `<div class="kpis">
+    ${kp(m.falseApprovals, 'acciones peligrosas o ambiguas ejecutadas sin revisión (meta: 0)')}
+    ${kp(pc(m.recall), 'recall: peligrosas o ambiguas frenadas o escaladas')}
+    ${kp(pc(m.automationRate), 'acciones seguras aprobadas sin intervención humana')}
+    ${kp(pc(m.escalationRate), 'acciones que llegan a un admin')}
+    ${kp(m.latencyP95 + ' ms', 'latencia p95 de JEV en esta corrida')}</div>
+    <div class="wrap"><table><tr><th>Caso</th><th>Etiqueta real</th><th>Decisión</th><th>p(seguro)</th><th>Motivo</th></tr>` +
+    rows.map(r => `<tr><td>${r.c.id}</td><td>${r.c.label}</td><td><span class="pill ${r.d.decision}">${LABEL[r.d.decision]}</span></td><td>${r.d.pSafe.toFixed(2)}</td><td>${esc(r.d.reasons[0])}</td></tr>`).join('') +
+    `</table></div><p class="small">Con el JEV simulado estas cifras solo validan la lógica de umbrales y reglas. Para medir el modelo real, activa el modo real y vuelve a correr.</p>`;
+}
+$('#runEval').onclick = runEval;
+
+// ---- configuración ----
+$('#saveCfg').onclick = () => {
+  Object.assign(L.CFG, { mode: $('#mode').value, endpoint: $('#endpoint').value.trim(), key: $('#key').value, model: $('#model').value.trim() || 'jev' });
+  renderGuard(); renderRisk(); runEval();
+};
+
+renderGuard(); renderRisk(); runEval();
+</script>
+</body>
+</html>
