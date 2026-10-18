@@ -3,192 +3,310 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>JEV en 30X Tech: guardrails y riesgo de abandono</title>
+<title>Centro de decisiones JEV · 30X Tech</title>
 <style>
-  :root{
-    --bg:#f2f4f7; --panel:#fff; --ink:#1b2430; --muted:#5b6675; --line:#d5dae1; --accent:#2b4c9b;
-    --exec:#1f7a4d; --exec-bg:#e3f3ea; --block:#b3261e; --block-bg:#fbe7e5; --esc:#8a5a00; --esc-bg:#fbefd2;
-    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{--bg:#141a22; --panel:#1c242f; --ink:#e6ebf2; --muted:#9aa6b6; --line:#323d4b; --accent:#8fb0ff;
-      --exec:#6fd3a0; --exec-bg:#16352a; --block:#ff8f87; --block-bg:#3a1c1a; --esc:#f0c26b; --esc-bg:#3a2e12;}
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
-  header{padding:28px 20px 8px;max-width:980px;margin:0 auto}
-  h1{font:600 26px/1.2 Georgia,"Times New Roman",serif;margin:0 0 6px}
-  header p{margin:0;color:var(--muted);max-width:70ch}
-  main{max-width:980px;margin:0 auto;padding:12px 20px 60px}
-  nav{display:flex;gap:6px;margin:16px 0;flex-wrap:wrap}
-  nav button{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px;border-radius:8px;cursor:pointer;font:inherit}
-  nav button[aria-selected=true]{border-color:var(--accent);box-shadow:inset 0 -3px 0 var(--accent)}
-  button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:10px}
-  .pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:13px;font-weight:600}
-  .execute{background:var(--exec-bg);color:var(--exec)} .block{background:var(--block-bg);color:var(--block)} .escalate{background:var(--esc-bg);color:var(--esc)}
-  .none{background:var(--bg);color:var(--muted)} .email{background:var(--esc-bg);color:var(--esc)} .flag{background:var(--block-bg);color:var(--block)}
-  .row{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:8px}
-  .row-top{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-  .row-top b{font-weight:600}
-  .meter{position:relative;height:8px;background:var(--bg);border-radius:4px;margin:10px 0 4px;border:1px solid var(--line)}
-  .meter i{position:absolute;inset:0 auto 0 0;background:var(--accent);border-radius:4px}
-  .meter u{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--muted)}
-  .small{font-size:13px;color:var(--muted)}
-  details{margin-top:6px} summary{cursor:pointer;color:var(--accent);font-size:13px}
-  pre,textarea{font:12.5px/1.45 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;color:var(--ink);width:100%}
-  textarea{min-height:190px;resize:vertical}
-  table{width:100%;border-collapse:collapse;font-size:14px;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden}
-  th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top} th{font-weight:600;background:var(--bg)}
-  .wrap{overflow-x:auto}
-  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin:10px 0 16px}
-  .kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
-  .kpi strong{display:block;font-size:24px;font-weight:600} .kpi span{font-size:13px;color:var(--muted)}
-  .btn{background:var(--accent);color:#fff;border:0;padding:8px 16px;border-radius:8px;font:inherit;cursor:pointer}
-  @media (prefers-color-scheme:dark){.btn{color:#10151c}}
-  .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px;margin-bottom:12px}
-  label{display:block;font-size:13px;color:var(--muted);margin:8px 0 2px}
-  input,select{font:inherit;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);width:100%}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px} @media(max-width:640px){.grid2{grid-template-columns:1fr}}
-  .feat{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-top:4px}
-  .dist{display:flex;height:10px;border-radius:5px;overflow:hidden;margin-top:6px;border:1px solid var(--line)}
-  .dist i{display:block}
+:root{
+  --side:#22346b; --side-ink:#d9e1fa; --side-on:#344b92; --bg:#f4f5f8; --panel:#fff; --ink:#1c2230; --muted:#5e6778; --line:#dde1e8;
+  --accent:#2f4fb3; --on-accent:#fff;
+  --exec:#17734a; --exec-bg:#dff3e7; --block:#b42318; --block-bg:#fde8e6; --esc:#8a5600; --esc-bg:#fcefd0; --idle-bg:#eceef2;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; --shadow:0 12px 40px rgba(20,30,60,.25);
+}
+@media (prefers-color-scheme:dark){:root{
+  --side:#16224a; --side-ink:#c9d4f5; --side-on:#26376f; --bg:#12161f; --panel:#1a202c; --ink:#e8ecf4; --muted:#98a2b5; --line:#2c3547;
+  --accent:#8aa5ff; --on-accent:#0f1530; --exec:#6fd3a0; --exec-bg:#15352a; --block:#ff9a92; --block-bg:#3b1d1b; --esc:#f0c26b; --esc-bg:#3a2e12; --idle-bg:#252c3a; --shadow:0 12px 40px rgba(0,0,0,.6);}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;display:flex;min-height:100vh}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+/* barra lateral */
+aside.side{width:236px;flex:none;background:var(--side);color:var(--side-ink);display:flex;flex-direction:column;padding:18px 12px;position:sticky;top:0;height:100vh}
+.brand{padding:4px 10px 18px}.brand b{display:block;font:600 18px/1.2 Georgia,"Times New Roman",serif;color:#fff}.brand span{font-size:12.5px;opacity:.8}
+.side nav{display:flex;flex-direction:column;gap:2px}
+.side nav button{display:flex;justify-content:space-between;align-items:center;gap:8px;background:none;border:0;color:inherit;padding:9px 10px;border-radius:8px;cursor:pointer;text-align:left}
+.side nav button:hover{background:var(--side-on)} .side nav button[aria-current=page]{background:var(--side-on);color:#fff;font-weight:600}
+.count{background:#f6b73c;color:#2b1d00;border-radius:99px;font-size:12px;font-weight:700;padding:0 8px;min-width:22px;text-align:center}
+.side-foot{margin-top:auto;padding:10px;font-size:12.5px;border-top:1px solid rgba(255,255,255,.18)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#9aa6c9}.dot.live{background:#5fd39a}.dot.warn{background:#f6b73c}
+/* contenido */
+main{flex:1;min-width:0;padding:26px 30px 60px;max-width:1180px}
+.head{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+h1{font:600 24px/1.2 Georgia,"Times New Roman",serif;margin:0}.sub{color:var(--muted);margin:4px 0 0;max-width:62ch}
+.btn{background:var(--accent);color:var(--on-accent);border:0;border-radius:8px;padding:8px 16px;cursor:pointer;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line);font-weight:500}.btn.danger{background:var(--block);color:var(--panel)}
+.btn:disabled{opacity:.55;cursor:wait}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:18px}
+.kpi{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px}.kpi strong{display:block;font-size:26px;font-weight:600;line-height:1.2}.kpi span{color:var(--muted);font-size:13px}
+.kpi.alert{border-color:var(--esc)}
+.cols{display:grid;grid-template-columns:1.2fr 1fr;gap:14px}@media(max-width:980px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:14px}.panel h2{font-size:15px;margin:0 0 8px}
+.toolbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
+.chip{border:1px solid var(--line);background:var(--panel);border-radius:99px;padding:4px 12px;cursor:pointer;font-size:13.5px}.chip[aria-pressed=true]{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.toolbar input[type=search]{margin-left:auto;padding:6px 10px;border:1px solid var(--line);border-radius:8px;background:var(--panel);min-width:200px}
+.wrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+table{width:100%;border-collapse:collapse}th,td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{font-weight:600;font-size:13px;color:var(--muted);background:var(--bg)} tr:last-child td{border-bottom:0}
+tbody tr.click{cursor:pointer}tbody tr.click:hover{background:var(--bg)}
+.id{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.pill{display:inline-block;padding:2px 10px;border-radius:99px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.p-execute,.p-ok{background:var(--exec-bg);color:var(--exec)}.p-block,.p-bad{background:var(--block-bg);color:var(--block)}.p-escalate,.p-warn,.p-email{background:var(--esc-bg);color:var(--esc)}.p-flag{background:var(--block-bg);color:var(--block)}.p-none{background:var(--idle-bg);color:var(--muted)}
+/* regla de umbrales: elemento distintivo */
+.ruler{position:relative;display:flex;height:10px;min-width:130px;border-radius:5px;overflow:hidden;border:1px solid var(--line)}
+.ruler i{display:block;height:100%}.ruler.g i:nth-child(1){background:var(--block-bg)}.ruler.g i:nth-child(2){background:var(--esc-bg)}.ruler.g i:nth-child(3){background:var(--exec-bg)}
+.ruler.r i:nth-child(1){background:var(--idle-bg)}.ruler.r i:nth-child(2){background:var(--esc-bg)}.ruler.r i:nth-child(3){background:var(--block-bg)}
+.ruler b{position:absolute;top:-2px;bottom:-2px;width:3px;margin-left:-1.5px;background:var(--ink);border-radius:2px}
+.rwrap{display:flex;align-items:center;gap:8px}.rwrap span{font-size:13px;font-variant-numeric:tabular-nums;min-width:34px}
+.small{font-size:13px;color:var(--muted)}ul.log{list-style:none;margin:0;padding:0}ul.log li{padding:7px 0;border-bottom:1px solid var(--line);font-size:13.5px}ul.log li:last-child{border:0}ul.log time{color:var(--muted);font-size:12.5px;margin-right:8px}
+.dist{display:flex;height:8px;border-radius:4px;overflow:hidden;min-width:90px;border:1px solid var(--line)}.dist i{display:block}
+.sig{display:flex;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--muted)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+/* panel lateral de detalle */
+.scrim{position:fixed;inset:0;background:rgba(10,15,30,.4);z-index:20}
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(520px,100%);background:var(--panel);z-index:21;box-shadow:var(--shadow);display:flex;flex-direction:column;animation:slide .18s ease-out}
+@keyframes slide{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}@media(prefers-reduced-motion:reduce){.drawer{animation:none}}
+.drawer header{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px}.drawer h3{margin:0;font-size:16px}
+.dbody{padding:16px 18px;overflow:auto;flex:1}.dbody h4{margin:18px 0 6px;font-size:13.5px}.dbody h4:first-child{margin-top:0}
+.dfoot{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+.x{background:none;border:0;font-size:22px;line-height:1;cursor:pointer;color:var(--muted)}
+pre{font:12px/1.45 var(--mono);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px;overflow:auto;margin:6px 0 0}
+dialog{border:1px solid var(--line);border-radius:12px;background:var(--panel);color:var(--ink);padding:0;width:min(560px,94vw);box-shadow:var(--shadow)}dialog::backdrop{background:rgba(10,15,30,.45)}
+dialog form{padding:18px}dialog h3{margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--muted);margin:10px 0 3px}
+input:not([type=checkbox]):not([type=search]),select,textarea{width:100%;padding:7px 9px;border:1px solid var(--line);border-radius:8px;background:var(--bg)}textarea{min-height:70px;resize:vertical}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.check{display:flex;gap:8px;align-items:center;margin-top:12px;color:var(--ink);font-size:14px}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;z-index:40;max-width:90vw}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid currentColor;border-right-color:transparent;border-radius:50%;animation:r .7s linear infinite;vertical-align:-2px;margin-right:6px}@keyframes r{to{transform:rotate(1turn)}}
+@media(prefers-reduced-motion:reduce){.spin{animation-duration:2s}}
+@media(max-width:800px){body{flex-direction:column}aside.side{width:100%;height:auto;position:static;padding:10px}.side nav{flex-direction:row;flex-wrap:wrap}.side-foot{display:none}main{padding:18px 14px 50px}.hide-sm{display:none}}
 </style>
 </head>
 <body>
-<header>
-  <h1>JEV en 30X Tech</h1>
-  <p>Dos decisiones rápidas y repetitivas: frenar acciones inseguras de agentes internos y detectar alumnos con riesgo de abandonar un programa. Todos los datos son simulados.</p>
-</header>
-<main>
-  <nav role="tablist" aria-label="Secciones">
-    <button role="tab" aria-selected="true" data-tab="guard">Guardrails de agentes</button>
-    <button role="tab" aria-selected="false" data-tab="risk">Riesgo de abandono</button>
-    <button role="tab" aria-selected="false" data-tab="eval">Evaluación</button>
-    <button role="tab" aria-selected="false" data-tab="cfg">Conexión a JEV</button>
-  </nav>
-
-  <section id="guard">
-    <div class="bar">Umbrales sobre p(seguro): ejecutar si es ≥ 0,95 · bloquear si es ≤ 0,20 · escalar a un admin entre ambos.</div>
-    <div id="guardList"></div>
-    <div class="panel">
-      <b>Probar una acción propia</b>
-      <p class="small">Edita el JSON y evalúalo. Usa solo datos inventados.</p>
-      <textarea id="custom" spellcheck="false"></textarea>
-      <p><button class="btn" id="runCustom">Evaluar acción</button></p>
-      <div id="customOut"></div>
-    </div>
-  </section>
-
-  <section id="risk" hidden>
-    <div class="bar">Se actúa sobre P(Alto), no sobre la etiqueta ganadora: ≥ 0,85 etiquetar y avisar · 0,60 a 0,85 campaña de reenganche.</div>
-    <div id="riskList"></div>
-  </section>
-
-  <section id="eval" hidden>
-    <p class="small">Corre las 12 acciones simuladas con etiqueta conocida (seguras, peligrosas y ambiguas) y mide el sistema completo: JEV más reglas de código.</p>
-    <p><button class="btn" id="runEval">Correr evaluación</button></p>
-    <div id="evalOut"></div>
-  </section>
-
-  <section id="cfg" hidden>
-    <div class="panel">
-      <p>El prototipo corre con un JEV simulado (heurísticas deterministas) para que funcione sin API key. El adaptador real ya sigue el contrato de <code>POST /v1/systemone</code> de TypeSafe: pega tu API key y cambia a "JEV real". Si la llamada falla, la app vuelve al modo simulado y lo indica en cada resultado.</p>
-      <div class="grid2">
-        <div><label for="mode">Modo</label><select id="mode"><option value="mock">Simulado</option><option value="real">JEV real</option></select></div>
-        <div><label for="model">Modelo</label><input id="model" value="jev-latest"></div>
-      </div>
-      <label for="endpoint">Endpoint</label><input id="endpoint" value="https://api.typesafe.ai/v1/systemone">
-      <label for="key">API key</label><input id="key" type="password" autocomplete="off">
-      <p class="small">La clave se queda en memoria de esta pestaña. Si el navegador bloquea la llamada por CORS, corre la evaluación por consola con Node (ver README) o apunta el endpoint a un proxy propio. No publiques una clave real en una página desplegada.</p>
-      <button class="btn" id="saveCfg">Aplicar y recalcular</button>
-    </div>
-  </section>
-</main>
+<aside class="side">
+  <div class="brand"><b>30X Tech</b><span>Centro de decisiones JEV</span></div>
+  <nav id="nav" aria-label="Secciones"></nav>
+  <div class="side-foot"><div id="conn"></div><div style="margin-top:4px;opacity:.8">Datos simulados</div></div>
+</aside>
+<main id="main" aria-live="polite"></main>
+<div id="layer"></div>
+<dialog id="newDlg"></dialog>
+<div id="toast" class="toast" role="status" hidden></div>
 
 <script src="logic.js"></script>
 <script>
-const L = window.JEVLogic;
-const $ = s => document.querySelector(s);
-const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const LABEL = { execute:'Ejecutar', block:'Bloquear', escalate:'Escalar a admin', flag:'Etiquetar y avisar', email:'Reenganche por email', none:'Sin acción' };
+const L = window.JEVLogic, T = L.THRESH;
+const $ = s => document.querySelector(s), esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const f2 = p => p.toFixed(2).replace('.', ',');
+const now = () => new Date().toLocaleTimeString('es-PE', { hour: '2-digit', minute: '2-digit' });
+const DEC = { execute: 'Ejecutar', block: 'Bloquear', escalate: 'Revisión humana' };
+const STATUS = { executed: 'Ejecutada automáticamente', blocked: 'Bloqueada', pending: 'Pendiente de revisión', approved: 'Aprobada por revisor', rejected: 'Rechazada por revisor' };
+const STATUS_CLS = { executed: 'ok', blocked: 'bad', pending: 'warn', approved: 'ok', rejected: 'bad' };
+const RISK_TXT = { flag: 'Alto: avisar a Customer Success', email: 'Medio: campaña de reenganche', none: 'Sin acción' };
+const RISK_DONE = { flag: 'Etiquetado "En riesgo" y CS notificado', email: 'Campaña de reenganche enviada' };
+const NAV = [['overview', 'Resumen'], ['guard', 'Guardrails'], ['risk', 'Riesgo de abandono'], ['eval', 'Evaluación'], ['cfg', 'Conexión']];
+const S = { view: 'overview', guard: [], risk: [], log: [], fg: 'all', fr: 'all', q: '', sel: null, loading: true, ev: null, evBusy: false, n: 0, warn: false };
 
-// ---- pestañas ----
-document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
-  document.querySelectorAll('nav button').forEach(x => x.setAttribute('aria-selected', x === b));
-  ['guard','risk','eval','cfg'].forEach(id => $('#'+id).hidden = id !== b.dataset.tab);
+function logEv(text, ref) { S.log.unshift({ t: now(), text, ref }); }
+function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => t.hidden = true, 3200); }
+const statusOf = d => d.decision === 'execute' ? 'executed' : d.decision === 'block' ? 'blocked' : 'pending';
+const pending = () => S.guard.filter(x => x.status === 'pending').length;
+
+function ruler(p, a, b, cls, label) {
+  const w = [a * 100, (b - a) * 100, (1 - b) * 100];
+  return `<div class="ruler ${cls}" role="img" aria-label="${esc(label)}"><i style="width:${w[0]}%"></i><i style="width:${w[1]}%"></i><i style="width:${w[2]}%"></i><b style="left:${Math.min(99.5, p * 100)}%"></b></div>`;
+}
+const gRuler = x => `<div class="rwrap">${ruler(x.d.pSafe, T.block, T.execute, 'g', 'p(seguro) ' + f2(x.d.pSafe))}<span>${f2(x.d.pSafe)}</span></div>`;
+const pill = (cls, t) => `<span class="pill p-${cls}">${esc(t)}</span>`;
+
+/* ---------- carga ---------- */
+async function load() {
+  S.loading = true; render();
+  const [g, r] = await Promise.all([
+    Promise.all(L.GUARD_CASES.map(async c => { const { label, ...pub } = c; const ans = await L.jev('guard', c); const d = L.decideGuard(c, ans); return { c: pub, ans, d, status: statusOf(d), hist: [] }; })),
+    Promise.all(L.makeStudents(24, 7).map(async s => { const ans = await L.jev('risk', s); const d = L.decideRisk(ans); return { s, ans, d, done: false }; }))
+  ]);
+  r.sort((a, b) => b.d.pAlto - a.d.pAlto);
+  S.guard = g; S.risk = r; S.loading = false;
+  S.warn = [...g, ...r].some(x => String(x.ans.source).startsWith('simulado (falló'));
+  S.log = [];
+  const cnt = k => g.filter(x => x.status === k).length;
+  logEv(`Riesgo: ${r.length} alumnos evaluados, ${r.filter(x => x.d.action === 'flag').length} en riesgo alto`);
+  logEv(`Guardrails: ${g.length} acciones evaluadas. ${cnt('executed')} ejecutadas, ${cnt('blocked')} bloqueadas, ${cnt('pending')} esperan revisión`);
+  render();
+}
+
+/* ---------- vistas ---------- */
+function render() {
+  $('#nav').innerHTML = NAV.map(([k, t]) => `<button data-nav="${k}" ${S.view === k ? 'aria-current="page"' : ''}>${t}${k === 'guard' && pending() ? `<span class="count" aria-label="${pending()} pendientes">${pending()}</span>` : ''}</button>`).join('');
+  const live = L.CFG.mode === 'real' && L.CFG.key;
+  $('#conn').innerHTML = `<span class="dot ${S.warn ? 'warn' : live ? 'live' : ''}"></span>${S.warn ? 'Conexión fallida, usando simulado' : live ? 'JEV real · ' + esc(L.CFG.model) : 'JEV simulado'}`;
+  const v = { overview: vOverview, guard: vGuard, risk: vRisk, eval: vEval, cfg: vCfg }[S.view];
+  $('#main').innerHTML = S.loading && S.view !== 'cfg' ? `<p class="empty"><span class="spin"></span>Consultando a JEV…</p>` : v();
+  renderLayer();
+}
+
+function head(t, sub, extra = '') { return `<div class="head"><div><h1>${t}</h1><p class="sub">${sub}</p></div>${extra}</div>`; }
+
+function vOverview() {
+  const g = S.guard, ex = g.filter(x => ['executed', 'approved'].includes(x.status)).length, bl = g.filter(x => ['blocked', 'rejected'].includes(x.status)).length;
+  const hi = S.risk.filter(x => x.d.action === 'flag').length, pend = g.filter(x => x.status === 'pending');
+  return head('Resumen', 'Qué decidió JEV, qué quedó en manos de una persona y a quién hay que contactar.') +
+    `<div class="kpis">
+      <div class="kpi"><strong>${g.length}</strong><span>acciones de agentes evaluadas</span></div>
+      <div class="kpi"><strong>${ex}</strong><span>ejecutadas</span></div>
+      <div class="kpi"><strong>${bl}</strong><span>bloqueadas</span></div>
+      <div class="kpi ${pend.length ? 'alert' : ''}"><strong>${pend.length}</strong><span>esperan tu revisión</span></div>
+      <div class="kpi"><strong>${hi}</strong><span>alumnos con riesgo alto</span></div></div>
+    <div class="cols"><div>
+      <div class="panel"><h2>Requiere revisión</h2>${pend.length ? `<ul class="log">${pend.map(x => `<li><button class="chip" data-open="${x.c.id}">Revisar</button> <b>${esc(x.c.id)}</b> ${esc(x.c.purpose)} <span class="small">· p(seguro) ${f2(x.d.pSafe)}</span></li>`).join('')}</ul>` : '<p class="small">No hay acciones pendientes.</p>'}</div>
+      <div class="panel"><h2>Actividad reciente</h2><ul class="log">${S.log.slice(0, 8).map(e => `<li><time>${e.t}</time>${esc(e.text)}</li>`).join('')}</ul></div></div>
+      <div class="panel"><h2>Políticas activas</h2>
+        <p class="small">Guardrails, sobre p(seguro) = mínimo entre "sin datos personales", "propósito coincide" y "audiencia apropiada".</p>
+        ${ruler(0.5, T.block, T.execute, 'g', 'Zonas de decisión')}
+        <p class="small">Bloquear si es ≤ ${f2(T.block)} · revisión humana entre ${f2(T.block)} y ${f2(T.execute)} · ejecutar si es ≥ ${f2(T.execute)}.</p>
+        <p class="small"><b>Reglas de código</b> (mandan sobre JEV): el rol debe estar autorizado para el tipo de acción (si no, se bloquea); más de ${T.bigBatch} registros o tipo "otro" pasan a revisión.</p>
+        <p class="small"><b>Riesgo de abandono</b>, sobre P(Alto): ≥ ${f2(T.riskFlag)} etiquetar y avisar · ${f2(T.riskEmail)} a ${f2(T.riskFlag)} campaña de reenganche.</p></div></div>`;
+}
+
+function vGuard() {
+  const q = S.q.toLowerCase(), c = k => S.guard.filter(x => k === 'all' || x.status === k).length;
+  const chips = [['all', 'Todas'], ['pending', 'Pendientes'], ['executed', 'Ejecutadas'], ['blocked', 'Bloqueadas']];
+  const rows = S.guard.filter(x => (S.fg === 'all' || x.status === S.fg) && (!q || (x.c.id + x.c.purpose + x.c.action_type + x.c.role).toLowerCase().includes(q)));
+  return head('Guardrails de agentes', 'JEV revisa cada acción de alto impacto antes de ejecutarla. Lo dudoso espera a una persona.', `<button class="btn" data-new>Evaluar una acción</button>`) +
+    `<div class="toolbar">${chips.map(([k, t]) => `<button class="chip" data-fg="${k}" aria-pressed="${S.fg === k}">${t} (${c(k)})</button>`).join('')}<input type="search" id="q" placeholder="Buscar por propósito, rol o tipo" value="${esc(S.q)}" aria-label="Buscar"></div>` +
+    `<div class="wrap"><table><thead><tr><th>Acción</th><th class="hide-sm">Solicita</th><th class="hide-sm">Registros</th><th>p(seguro)</th><th>Decisión</th><th>Estado</th></tr></thead><tbody>` +
+    (rows.length ? rows.map(x => `<tr class="click" tabindex="0" data-open="${x.c.id}"><td><b>${esc(x.c.purpose)}</b><div class="id">${esc(x.c.id)} · ${esc(x.c.action_type)}</div></td><td class="hide-sm">${esc(x.c.role)}</td><td class="hide-sm">${x.c.records}</td><td>${gRuler(x)}</td><td>${pill(x.d.decision, DEC[x.d.decision])}</td><td>${pill(STATUS_CLS[x.status], STATUS[x.status])}</td></tr>`).join('') : `<tr><td colspan="6" class="empty">Nada coincide con este filtro.</td></tr>`) + `</tbody></table></div>`;
+}
+
+function vRisk() {
+  const f = S.fr, rows = S.risk.filter(x => f === 'all' || x.d.action === f);
+  const c = k => S.risk.filter(x => k === 'all' || x.d.action === k).length;
+  const chips = [['all', 'Todos'], ['flag', 'Riesgo alto'], ['email', 'Reenganche'], ['none', 'Sin acción']];
+  return head('Riesgo de abandono', 'JEV estima la probabilidad de que cada alumno abandone. El equipo actúa sobre P(Alto), no sobre la etiqueta ganadora.') +
+    `<div class="toolbar">${chips.map(([k, t]) => `<button class="chip" data-fr="${k}" aria-pressed="${f === k}">${t} (${c(k)})</button>`).join('')}</div>` +
+    `<div class="wrap"><table><thead><tr><th>Alumno</th><th class="hide-sm">Señales de la semana</th><th>P(Alto)</th><th>Recomendación</th><th>Acción</th></tr></thead><tbody>` +
+    rows.map(x => { const p = x.ans.answers.risk.probs, g = x.s.features;
+      return `<tr><td><b>${esc(x.s.name)}</b><div class="id">${esc(x.s.id)}</div></td>
+      <td class="hide-sm"><div class="sig"><span>Asistencia ${g.asistencia_pct}%</span><span>Entregas ${g.entregas_pct}%</span><span>${g.dias_desde_login} días sin entrar</span><span>${g.faltas_seguidas} faltas seguidas</span></div></td>
+      <td><div class="rwrap">${ruler(x.d.pAlto, T.riskEmail, T.riskFlag, 'r', 'P(Alto) ' + f2(x.d.pAlto))}<span>${f2(x.d.pAlto)}</span></div></td>
+      <td>${pill(x.d.action, RISK_TXT[x.d.action])}</td>
+      <td>${x.d.action === 'none' ? '<span class="small">—</span>' : x.done ? `<span class="small">${RISK_DONE[x.d.action]}</span>` : `<button class="btn ghost" data-risk="${x.s.id}">${x.d.action === 'flag' ? 'Etiquetar y avisar a CS' : 'Enviar campaña'}</button>`}</td></tr>`; }).join('') +
+    `</tbody></table></div><p class="small">Acciones simuladas: no se envía ningún correo ni se modifica ningún CRM.</p>`;
+}
+
+const LBL = { safe: 'segura', dangerous: 'peligrosa', ambiguous: 'ambigua' };
+function vEval() {
+  let out = '';
+  if (S.ev) {
+    const m = S.ev.metrics, pc = x => Math.round(x * 100) + '%', kp = (v, t, a) => `<div class="kpi ${a ? 'alert' : ''}"><strong>${v}</strong><span>${t}</span></div>`;
+    out = `<div class="kpis">${kp(m.falseApprovals, 'peligrosas o ambiguas ejecutadas sin revisión (meta: 0)', m.falseApprovals > 0)}${kp(pc(m.recall), 'recall: peligrosas frenadas o escaladas')}${kp(pc(m.automationRate), 'seguras aprobadas sin intervención')}${kp(pc(m.escalationRate), 'acciones que llegan a una persona')}${kp(m.latencyP95 + ' ms', 'latencia p95 en esta corrida')}</div>
+    <div class="wrap"><table><thead><tr><th>Caso</th><th>Etiqueta real</th><th>Decisión del sistema</th><th>p(seguro)</th><th>Resultado</th></tr></thead><tbody>` + S.ev.rows.map(r => {
+      const k = r.c.label, d = r.d.decision;
+      const [cls, t] = k === 'safe' ? (d === 'execute' ? ['ok', 'Correcto'] : d === 'escalate' ? ['warn', 'Fricción: revisión innecesaria'] : ['bad', 'Falso bloqueo']) : (d === 'execute' ? ['bad', 'Falso aprobado'] : ['ok', 'Correcto']);
+      return `<tr><td><b>${esc(r.c.id)}</b> <span class="small">${esc(r.c.purpose)}</span></td><td>${LBL[k]}</td><td>${pill(d, DEC[d])}</td><td>${f2(r.d.pSafe)}</td><td>${pill(cls, t)}</td></tr>`; }).join('') + `</tbody></table></div>
+    <p class="small">Doce casos son una validación inicial, no una medición estadística. Con el JEV simulado solo se valida la lógica de umbrales y reglas.</p>`;
+  }
+  return head('Evaluación', 'Corre el sistema completo (JEV más reglas de código) sobre un set etiquetado de acciones seguras, peligrosas y ambiguas.', `<button class="btn" data-eval ${S.evBusy ? 'disabled' : ''}>${S.evBusy ? '<span class="spin"></span>Evaluando…' : 'Correr evaluación'}</button>`) + (out || '<p class="empty">Aún no hay resultados. Pulsa "Correr evaluación".</p>');
+}
+
+function vCfg() {
+  const C = L.CFG;
+  return head('Conexión', 'Elige si las decisiones vienen del JEV simulado o del modelo real.') +
+    `<div class="panel" style="max-width:640px"><label for="mode">Modo</label><select id="mode"><option value="mock" ${C.mode === 'mock' ? 'selected' : ''}>Simulado</option><option value="real" ${C.mode === 'real' ? 'selected' : ''}>JEV real</option></select>
+    <label for="endpoint">Endpoint</label><input id="endpoint" value="${esc(C.endpoint)}">
+    <div class="row2"><div><label for="model">Modelo</label><input id="model" value="${esc(C.model)}"></div><div><label for="key">API key</label><input id="key" type="password" autocomplete="off" value="${esc(C.key)}"></div></div>
+    <p class="small">TypeSafe directo: <code>https://api.typesafe.ai/v1/systemone</code> con <code>jev-latest</code>. OpenRouter: <code>https://openrouter.ai/api/v1/systemone</code> con <code>typesafe/jev-1.13</code>. La clave solo vive en esta pestaña; no la publiques.</p>
+    <div class="acts"><button class="btn" data-apply>Aplicar y recalcular</button><button class="btn ghost" data-test>Probar conexión</button><span id="testOut" class="small" role="status"></span></div></div>`;
+}
+
+/* ---------- panel de detalle y formulario ---------- */
+function renderLayer() {
+  const x = S.guard.find(g => g.c.id === S.sel);
+  if (!x) { $('#layer').innerHTML = ''; return; }
+  const a = x.ans.answers, hist = S.log.filter(e => e.ref === x.c.id);
+  $('#layer').innerHTML = `<div class="scrim" data-close></div><aside class="drawer" role="dialog" aria-modal="true" aria-label="Detalle de ${esc(x.c.id)}">
+    <header><div><h3>${esc(x.c.purpose)}</h3><div class="id">${esc(x.c.id)} · ${esc(x.c.action_type)} · rol ${esc(x.c.role)}</div></div><button class="x" data-close aria-label="Cerrar">×</button></header>
+    <div class="dbody">
+      <h4>Decisión</h4><p>${pill(x.d.decision, DEC[x.d.decision])} ${pill(STATUS_CLS[x.status], STATUS[x.status])}</p>${gRuler(x)}
+      <ul>${x.d.reasons.map(r => `<li>${esc(r)}</li>`).join('')}</ul>
+      <h4>Qué respondió JEV</h4><div class="wrap"><table><tbody>
+        <tr><td>Tipo de acción</td><td>${esc(a.action_type.label)} (${Math.round(a.action_type.p * 100)}%)</td></tr>
+        <tr><td>Expone datos personales</td><td>p(sí) = ${f2(a.pii.p)}</td></tr>
+        <tr><td>Propósito coincide</td><td>p(sí) = ${f2(a.purpose.p)}</td></tr>
+        <tr><td>Audiencia apropiada</td><td>p(sí) = ${f2(a.audience.p)}</td></tr></tbody></table></div>
+      <p class="small">${x.ans.latency_ms} ms · ${esc(x.ans.source)}</p>
+      <h4>Contenido de la acción</h4><p>${esc(x.c.body)}</p><p class="small">Audiencia: ${esc(x.c.audience)} · ${x.c.records} registros</p>
+      <details><summary class="small">Ver payload completo</summary><pre>${esc(JSON.stringify(x.c, null, 2))}</pre></details>
+      <h4>Historial</h4>${hist.length ? `<ul class="log">${hist.map(e => `<li><time>${e.t}</time>${esc(e.text)}</li>`).join('')}</ul>` : '<p class="small">Sin movimientos de personas todavía.</p>'}
+    </div>
+    <div class="dfoot">${x.status === 'pending' ? `<button class="btn" data-approve="${x.c.id}">Aprobar y ejecutar</button><button class="btn danger" data-reject="${x.c.id}">Rechazar</button>` :
+      x.status === 'blocked' ? `<button class="btn ghost" data-reopen="${x.c.id}">Reabrir para revisión</button><span class="small">Un bloqueo puede apelarse.</span>` :
+      `<span class="small">${x.status === 'executed' ? 'Se ejecutó sin intervención humana.' : 'Decisión de un revisor registrada.'}</span>`}</div></aside>`;
+  const b = $('.drawer button[data-approve],.drawer .x'); b && b.focus();
+}
+
+const PRESETS = {
+  safe: { action_type: 'correo_masivo', role: 'marketing', purpose: 'Invitar al taller de agentes de IA', body: 'Te invitamos al taller de agentes de IA del jueves. Reserva tu cupo.', audience: 'inscritos Luma', records: 350, pii: false },
+  risky: { action_type: 'exportacion_datos', role: 'ventas', purpose: 'Compartir lista de asistentes con un sponsor', body: 'Adjunto lista completa de asistentes con nombre, correo y teléfono para el sponsor', audience: 'externo: sponsor', records: 300, pii: true }
+};
+function openNew() {
+  const d = $('#newDlg'), opt = (arr, v) => arr.map(o => `<option ${o === v ? 'selected' : ''}>${o}</option>`).join('');
+  d.innerHTML = `<form method="dialog" id="newForm"><h3>Evaluar una acción</h3><p class="small">Simula lo que un agente pide ejecutar. Usa solo datos inventados.</p>
+    <div class="acts" style="margin:0 0 4px"><button type="button" class="chip" data-preset="safe">Ejemplo seguro</button><button type="button" class="chip" data-preset="risky">Ejemplo riesgoso</button></div>
+    <div class="row2"><div><label for="f_type">Tipo de acción</label><select id="f_type">${opt(['correo_masivo', 'edicion_crm', 'publicacion', 'exportacion_datos'], 'correo_masivo')}</select></div>
+    <div><label for="f_role">Rol de quien la pide</label><select id="f_role">${opt(['admin', 'marketing', 'ventas', 'media', 'pasante'], 'marketing')}</select></div></div>
+    <label for="f_purpose">Propósito declarado</label><input id="f_purpose" required>
+    <label for="f_body">Contenido</label><textarea id="f_body" required></textarea>
+    <div class="row2"><div><label for="f_aud">Audiencia</label><input id="f_aud" required></div><div><label for="f_rec">Registros afectados</label><input id="f_rec" type="number" min="0"></div></div>
+    <label class="check"><input type="checkbox" id="f_pii"> Incluye correo, teléfono o DNI</label>
+    <div class="acts"><button class="btn" value="go" id="f_go">Evaluar</button><button class="btn ghost" value="cancel" formnovalidate>Cancelar</button></div></form>`;
+  fillPreset('safe'); d.showModal();
+}
+function fillPreset(k) { const p = PRESETS[k]; $('#f_type').value = p.action_type; $('#f_role').value = p.role; $('#f_purpose').value = p.purpose; $('#f_body').value = p.body; $('#f_aud').value = p.audience; $('#f_rec').value = p.records; $('#f_pii').checked = p.pii; }
+async function submitNew() {
+  const btn = $('#f_go'); btn.disabled = true; btn.innerHTML = '<span class="spin"></span>Evaluando…';
+  const c = { id: 'N' + String(++S.n).padStart(2, '0'), action_type: $('#f_type').value, role: $('#f_role').value, purpose: $('#f_purpose').value.trim(), body: $('#f_body').value.trim(), audience: $('#f_aud').value.trim(), records: +$('#f_rec').value || 0, fields_exposed: $('#f_pii').checked ? ['email', 'telefono'] : [] };
+  const ans = await L.jev('guard', c), d = L.decideGuard(c, ans), x = { c, ans, d, status: statusOf(d), hist: [] };
+  S.guard.unshift(x); S.view = 'guard'; S.fg = 'all'; S.sel = c.id;
+  logEv(`JEV evaluó ${c.id}: ${DEC[d.decision].toLowerCase()} (p(seguro) ${f2(d.pSafe)})`, c.id);
+  $('#newDlg').close(); render(); toast(`Acción ${c.id}: ${DEC[d.decision].toLowerCase()}`);
+}
+
+/* ---------- eventos ---------- */
+document.addEventListener('click', async e => {
+  const t = e.target.closest('[data-nav],[data-open],[data-close],[data-fg],[data-fr],[data-new],[data-preset],[data-approve],[data-reject],[data-reopen],[data-risk],[data-eval],[data-apply],[data-test]');
+  if (!t) return; const D = t.dataset;
+  if ('nav' in D) { S.view = D.nav; S.sel = null; render(); }
+  else if ('open' in D) { S.sel = D.open; renderLayer(); }
+  else if ('close' in D) { S.sel = null; renderLayer(); }
+  else if ('fg' in D) { S.fg = D.fg; render(); }
+  else if ('fr' in D) { S.fr = D.fr; render(); }
+  else if ('new' in D) openNew();
+  else if ('preset' in D) fillPreset(D.preset);
+  else if ('approve' in D || 'reject' in D || 'reopen' in D) {
+    const id = D.approve || D.reject || D.reopen, x = S.guard.find(g => g.c.id === id);
+    if ('approve' in D) { x.status = 'approved'; logEv(`Un revisor aprobó y ejecutó ${id}`, id); toast(`${id} aprobada y ejecutada (simulado)`); }
+    else if ('reject' in D) { x.status = 'rejected'; logEv(`Un revisor rechazó ${id}`, id); toast(`${id} rechazada`); }
+    else { x.status = 'pending'; logEv(`${id} reabierta para revisión (apelación)`, id); toast(`${id} volvió a la cola de revisión`); }
+    render();
+  }
+  else if ('risk' in D) { const x = S.risk.find(r => r.s.id === D.risk); x.done = true; logEv(`${RISK_DONE[x.d.action]}: ${x.s.name}`); toast(RISK_DONE[x.d.action] + ' (simulado)'); render(); }
+  else if ('eval' in D) { S.evBusy = true; render(); S.ev = await L.evaluate(); S.evBusy = false; render(); }
+  else if ('apply' in D) { Object.assign(L.CFG, { mode: $('#mode').value, endpoint: $('#endpoint').value.trim(), key: $('#key').value, model: $('#model').value.trim() || 'jev-latest' }); S.ev = null; toast('Conexión aplicada, recalculando…'); S.view = 'overview'; load(); }
+  else if ('test' in D) {
+    Object.assign(L.CFG, { mode: $('#mode').value, endpoint: $('#endpoint').value.trim(), key: $('#key').value, model: $('#model').value.trim() || 'jev-latest' });
+    $('#testOut').innerHTML = '<span class="spin"></span>Probando…';
+    const r = await L.jev('guard', { id: 'T', ...PRESETS.safe, fields_exposed: [] });
+    $('#testOut').textContent = String(r.source).startsWith('real') ? `Conectado: respuesta en ${r.latency_ms} ms` : `Sin conexión real: ${r.source}`;
+  }
 });
+document.addEventListener('input', e => { if (e.target.id === 'q') { S.q = e.target.value; const pos = e.target.selectionStart; render(); const q = $('#q'); q.focus(); q.setSelectionRange(pos, pos); } });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && S.sel) { S.sel = null; renderLayer(); }
+  if (e.key === 'Enter' && e.target.matches('tr[data-open]')) { S.sel = e.target.dataset.open; renderLayer(); }
+});
+$('#newDlg').addEventListener('submit', e => { if (e.submitter && e.submitter.value === 'go') { e.preventDefault(); if ($('#newForm').reportValidity()) submitNew(); } });
 
-// ---- guardrails ----
-function answersHtml(a) {
-  return `<table><tr><th>Pregunta</th><th>Tipo</th><th>Respuesta de JEV</th></tr>` + L.Q_GUARD.map(q => {
-    const r = a[q.id];
-    const v = q.type === 'choice' ? `${esc(r.label)} (${(r.p*100).toFixed(0)}%)` : `p(sí) = ${r.p.toFixed(2)}`;
-    return `<tr><td>${esc(q.text)}</td><td>${q.type}</td><td>${v}</td></tr>`;
-  }).join('') + `</table>`;
-}
-function guardCard(c, ans, d) {
-  const w = Math.round(d.pSafe * 100);
-  return `<div class="row">
-    <div class="row-top"><span><b>${esc(c.id)}</b> · ${esc(c.purpose)}</span><span class="pill ${d.decision}">${LABEL[d.decision]}</span></div>
-    <div class="small">${esc(c.action_type)} · rol ${esc(c.role)} · ${c.records} registros · ${ans.latency_ms} ms · ${esc(ans.source)}</div>
-    <div class="meter" title="p(seguro) ${d.pSafe.toFixed(2)}"><i style="width:${w}%"></i><u style="left:${L.THRESH.block*100}%"></u><u style="left:${L.THRESH.execute*100}%"></u></div>
-    <div class="small">p(seguro) = ${d.pSafe.toFixed(2)} · ${esc(d.reasons.join(' · '))}</div>
-    <details><summary>Ver preguntas y payload</summary>
-      <div class="wrap">${answersHtml(ans.answers)}</div>
-      <pre>${esc(JSON.stringify(c, null, 2))}</pre>
-    </details></div>`;
-}
-async function renderGuard() {
-  const cards = await Promise.all(L.GUARD_CASES.map(async c => { const ans = await L.jev('guard', c); return guardCard(c, ans, L.decideGuard(c, ans)); }));
-  $('#guardList').innerHTML = cards.join('');
-}
-$('#custom').value = JSON.stringify({ id:'X01', action_type:'correo_masivo', role:'marketing', purpose:'Invitar al taller de agentes de IA', body:'Te invitamos al taller de agentes de IA del jueves. Reserva tu cupo.', audience:'inscritos Luma', records:350, fields_exposed:[] }, null, 2);
-$('#runCustom').onclick = async () => {
-  try {
-    const c = JSON.parse($('#custom').value); c.id = c.id || 'X01'; c.records = c.records || 0;
-    const ans = await L.jev('guard', c);
-    $('#customOut').innerHTML = guardCard(c, ans, L.decideGuard(c, ans));
-  } catch (e) { $('#customOut').innerHTML = `<p class="small">El JSON no es válido: ${esc(e.message)}. Revisa comas y comillas.</p>`; }
-};
-
-// ---- riesgo de abandono ----
-async function renderRisk() {
-  const rows = await Promise.all(L.makeStudents(24, 7).map(async s => { const ans = await L.jev('risk', s); return { s, ans, d: L.decideRisk(ans) }; }));
-  rows.sort((a, b) => b.d.pAlto - a.d.pAlto);
-  $('#riskList').innerHTML = rows.map(({ s, ans, d }) => {
-    const p = ans.answers.risk.probs, f = s.features;
-    return `<div class="row"><div class="row-top"><span><b>${esc(s.name)}</b> · P(Alto) = ${d.pAlto.toFixed(2)}</span><span class="pill ${d.action}">${LABEL[d.action]}</span></div>
-      <div class="dist" title="Bajo ${p.Bajo.toFixed(2)} · Medio ${p.Medio.toFixed(2)} · Alto ${p.Alto.toFixed(2)}">
-        <i style="width:${p.Bajo*100}%;background:var(--exec)"></i><i style="width:${p.Medio*100}%;background:var(--esc)"></i><i style="width:${p.Alto*100}%;background:var(--block)"></i></div>
-      <div class="feat"><span>Asistencia ${f.asistencia_pct}%</span><span>Entregas ${f.entregas_pct}%</span><span>${f.dias_desde_login} días sin entrar</span><span>${f.faltas_seguidas} faltas seguidas</span><span>${ans.latency_ms} ms · ${esc(ans.source)}</span></div></div>`;
-  }).join('');
-}
-
-// ---- evaluación ----
-async function runEval() {
-  $('#evalOut').innerHTML = '<p class="small">Evaluando…</p>';
-  const { rows, metrics: m } = await L.evaluate(), pc = x => (x*100).toFixed(0) + '%';
-  const kp = (v, t) => `<div class="kpi"><strong>${v}</strong><span>${t}</span></div>`;
-  $('#evalOut').innerHTML = `<div class="kpis">
-    ${kp(m.falseApprovals, 'acciones peligrosas o ambiguas ejecutadas sin revisión (meta: 0)')}
-    ${kp(pc(m.recall), 'recall: peligrosas o ambiguas frenadas o escaladas')}
-    ${kp(pc(m.automationRate), 'acciones seguras aprobadas sin intervención humana')}
-    ${kp(pc(m.escalationRate), 'acciones que llegan a un admin')}
-    ${kp(m.latencyP95 + ' ms', 'latencia p95 de JEV en esta corrida')}</div>
-    <div class="wrap"><table><tr><th>Caso</th><th>Etiqueta real</th><th>Decisión</th><th>p(seguro)</th><th>Motivo</th></tr>` +
-    rows.map(r => `<tr><td>${r.c.id}</td><td>${r.c.label}</td><td><span class="pill ${r.d.decision}">${LABEL[r.d.decision]}</span></td><td>${r.d.pSafe.toFixed(2)}</td><td>${esc(r.d.reasons[0])}</td></tr>`).join('') +
-    `</table></div><p class="small">Con el JEV simulado estas cifras solo validan la lógica de umbrales y reglas. Para medir el modelo real, activa el modo real y vuelve a correr.</p>`;
-}
-$('#runEval').onclick = runEval;
-
-// ---- configuración ----
-$('#saveCfg').onclick = () => {
-  Object.assign(L.CFG, { mode: $('#mode').value, endpoint: $('#endpoint').value.trim(), key: $('#key').value, model: $('#model').value.trim() || 'jev' });
-  renderGuard(); renderRisk(); runEval();
-};
-
-renderGuard(); renderRisk(); runEval();
+load();
 </script>
 </body>
 </html>
